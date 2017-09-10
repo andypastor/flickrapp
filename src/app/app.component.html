@@ -1,0 +1,20 @@
+<div class="container">    
+  <form role="form" [formGroup]="searchForm" (ngSubmit)="search()">
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Enter tags here..." formControlName="tags">
+      <span class="input-group-btn">
+        <button class="btn btn-primary" type="submit">Search!</button>
+      </span>
+    </div>
+  </form>
+  <!-- <router-outlet></router-outlet> -->
+  <p *ngIf="status != ''">{{status}}</p>
+  <masonry [useImagesLoaded]="true">
+      <masonry-brick class="brick card col-md-4" *ngFor="let image of imageData let i = index">          
+          <img class="card-img-top" [src]="image.media" alt="" style="width:100%">
+          <div>
+            <h4 *ngIf="image.title != ' '" class="card-title" [innerHTML]="getTitle(image.title,image.author)"></h4>
+          </div>
+      </masonry-brick>
+    </masonry>
+</div>
