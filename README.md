@@ -1,4 +1,6 @@
-# Meanapp
+# flickrapp
+
+Preview at [http://ec2-54-255-216-145.ap-southeast-1.compute.amazonaws.com/](http://ec2-54-255-216-145.ap-southeast-1.compute.amazonaws.com/)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.2.3.
 
