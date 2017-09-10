@@ -11,6 +11,7 @@ export class AppComponent implements OnInit{
   title = 'app';
   imageData = [];
   status = 'Loading images....';
+  searchResult = '';
 
   searchForm: FormGroup;
 
@@ -23,12 +24,7 @@ export class AppComponent implements OnInit{
   }
 
   ngOnInit(){    
-    this.images.getImages().map(data => {            
-      data.items.forEach(element => {        
-        element.media = element.media.m
-      });
-      return data;
-    }).subscribe(
+    this.images.getImages().subscribe(
       data => {        
         this.imageData = data.items;
         this.status = '';
@@ -37,27 +33,26 @@ export class AppComponent implements OnInit{
   }
   
   search(){        
-    var tags = this.searchForm.value.tags.replace(' ', ',').replace('_',',').split(' ').join('').split('_').join('');
-    this.imageData = [];
-    this.status = 'Searching images...';
+    var tags = this.searchForm.value.tags.replace(/ /g, ',').replace(/_/g,',');
+    this.imageData = [];    
     if(tags != ''){
-      this.images.searchImages(tags).map(data => {            
-        data.items.forEach(element => {        
-          element.media = element.media.m
-        });
-        return data;
-      }).subscribe(
-        data => {        
+      this.status = 'Searching images...';
+      this.searchResult = '';
+      this.images.searchImages(tags).subscribe(
+        data => {
+          this.searchForm.reset();
+          this.status = '';
+          this.searchResult = data.items.length > 0 ? 'Search results for ' + tags + '...' : 'No search results for ' + tags + '...';
           this.imageData = data.items;
-          this.status = data.items.length > 0 ? '' : 'No images found';
         }
       );
     }else{
+      this.status = '';
       location.reload();
     }        
   }
 
   getTitle(title: string, author: string){        
-    return title + ' <br/> ' + '<small>' +author.replace('nobody@flickr.com ("' ,'').replace('")','') + '</small>';
+    return title + ' <br/> ' + '<small><i>' +author.replace('nobody@flickr.com ("' ,'').replace('")','') + '</i></small>';
   }
 }

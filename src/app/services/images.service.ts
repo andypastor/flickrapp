@@ -11,11 +11,21 @@ export class ImagesService {
 
   getImages(){
     return this.http.get('api/images')
-    .map(res => res.json());    
+    .map(res => res.json()).map(data => {                        
+      data.items.forEach(element => {        
+        element.media = element.media.m
+      });
+      return data;
+    });    
   }
 
   searchImages(tags:string){
     return this.http.get('api/search/'+tags)
-    .map(res => res.json());
+    .map(res => res.json()).map(data => {
+      data.items.forEach(element => {        
+        element.media = element.media.m
+      });
+      return data;
+    });
   }
 }

@@ -9,6 +9,7 @@
   </form>
   <!-- <router-outlet></router-outlet> -->
   <p *ngIf="status != ''">{{status}}</p>
+  <h1 *ngIf="searchResult != ''">{{searchResult}}</h1>
   <masonry [useImagesLoaded]="true">
       <masonry-brick class="brick card col-md-4" *ngFor="let image of imageData let i = index">          
           <img class="card-img-top" [src]="image.media" alt="" style="width:100%">

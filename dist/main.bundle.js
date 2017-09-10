@@ -16,7 +16,7 @@ webpackEmptyContext.id = "../../../../../src async recursive";
 /***/ "../../../../../src/app/app.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container\">    \n  <form role=\"form\" [formGroup]=\"searchForm\" (ngSubmit)=\"search()\">\n    <div class=\"input-group\">\n      <input type=\"text\" class=\"form-control\" placeholder=\"Enter tags here...\" formControlName=\"tags\">\n      <span class=\"input-group-btn\">\n        <button class=\"btn btn-primary\" type=\"submit\">Search!</button>\n      </span>\n    </div>\n  </form>\n  <!-- <router-outlet></router-outlet> -->\n  <p *ngIf=\"status != ''\">{{status}}</p>\n  <masonry [useImagesLoaded]=\"true\">\n      <masonry-brick class=\"brick card col-md-4\" *ngFor=\"let image of imageData let i = index\">          \n          <img class=\"card-img-top\" [src]=\"image.media\" alt=\"\" style=\"width:100%\">\n          <div>\n            <h4 *ngIf=\"image.title != ' '\" class=\"card-title\" [innerHTML]=\"getTitle(image.title,image.author)\"></h4>\n          </div>\n      </masonry-brick>\n    </masonry>\n</div>\n"
+module.exports = "<div class=\"container\">    \n  <form role=\"form\" [formGroup]=\"searchForm\" (ngSubmit)=\"search()\">\n    <div class=\"input-group\">\n      <input type=\"text\" class=\"form-control\" placeholder=\"Enter tags here...\" formControlName=\"tags\">\n      <span class=\"input-group-btn\">\n        <button class=\"btn btn-primary\" type=\"submit\">Search!</button>\n      </span>\n    </div>\n  </form>\n  <!-- <router-outlet></router-outlet> -->\n  <p *ngIf=\"status != ''\">{{status}}</p>\n  <h1 *ngIf=\"searchResult != ''\">{{searchResult}}</h1>\n  <masonry [useImagesLoaded]=\"true\">\n      <masonry-brick class=\"brick card col-md-4\" *ngFor=\"let image of imageData let i = index\">          \n          <img class=\"card-img-top\" [src]=\"image.media\" alt=\"\" style=\"width:100%\">\n          <div>\n            <h4 *ngIf=\"image.title != ' '\" class=\"card-title\" [innerHTML]=\"getTitle(image.title,image.author)\"></h4>\n          </div>\n      </masonry-brick>\n    </masonry>\n</div>\n"
 
 /***/ }),
 
@@ -64,44 +64,39 @@ var AppComponent = (function () {
         this.title = 'app';
         this.imageData = [];
         this.status = 'Loading images....';
+        this.searchResult = '';
         this.searchForm = new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* FormGroup */]({
             'tags': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["d" /* FormControl */](name),
         });
     }
     AppComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.images.getImages().map(function (data) {
-            data.items.forEach(function (element) {
-                element.media = element.media.m;
-            });
-            return data;
-        }).subscribe(function (data) {
+        this.images.getImages().subscribe(function (data) {
             _this.imageData = data.items;
             _this.status = '';
         });
     };
     AppComponent.prototype.search = function () {
         var _this = this;
-        var tags = this.searchForm.value.tags.replace(' ', ',').replace('_', ',').split(' ').join('').split('_').join('');
+        var tags = this.searchForm.value.tags.replace(/ /g, ',').replace(/_/g, ',');
         this.imageData = [];
-        this.status = 'Searching images...';
         if (tags != '') {
-            this.images.searchImages(tags).map(function (data) {
-                data.items.forEach(function (element) {
-                    element.media = element.media.m;
-                });
-                return data;
-            }).subscribe(function (data) {
+            this.status = 'Searching images...';
+            this.searchResult = '';
+            this.images.searchImages(tags).subscribe(function (data) {
+                _this.searchForm.reset();
+                _this.status = '';
+                _this.searchResult = data.items.length > 0 ? 'Search results for ' + tags + '...' : 'No search results for ' + tags + '...';
                 _this.imageData = data.items;
-                _this.status = data.items.length > 0 ? '' : 'No images found';
             });
         }
         else {
+            this.status = '';
             location.reload();
         }
     };
     AppComponent.prototype.getTitle = function (title, author) {
-        return title + ' <br/> ' + '<small>' + author.replace('nobody@flickr.com ("', '').replace('")', '') + '</small>';
+        return title + ' <br/> ' + '<small><i>' + author.replace('nobody@flickr.com ("', '').replace('")', '') + '</i></small>';
     };
     return AppComponent;
 }());
@@ -197,11 +192,21 @@ var ImagesService = (function () {
     }
     ImagesService.prototype.getImages = function () {
         return this.http.get('api/images')
-            .map(function (res) { return res.json(); });
+            .map(function (res) { return res.json(); }).map(function (data) {
+            data.items.forEach(function (element) {
+                element.media = element.media.m;
+            });
+            return data;
+        });
     };
     ImagesService.prototype.searchImages = function (tags) {
         return this.http.get('api/search/' + tags)
-            .map(function (res) { return res.json(); });
+            .map(function (res) { return res.json(); }).map(function (data) {
+            data.items.forEach(function (element) {
+                element.media = element.media.m;
+            });
+            return data;
+        });
     };
     return ImagesService;
 }());
